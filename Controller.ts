@@ -44,10 +44,6 @@ interface CaptureSize {
   height: number;
 }
 
-function captureSizesEqual(a: CaptureSize, b: CaptureSize) {
-  return a.width === b.width && a.height === b.height;
-}
-
 type FocusedMQ =
   | "none"
   | "capture-slider-var"
@@ -119,19 +115,6 @@ export default class Controller {
     this.updateView();
   }
 
-  checkCaptureSize() {
-    const size = Calc.graphpaperBounds.pixelCoordinates;
-    if (this.expectedSize !== null) {
-      const diff = !captureSizesEqual(this.expectedSize, size);
-      if (diff !== this.isCaptureSizeDifferent) {
-        this.isCaptureSizeDifferent = diff;
-        this.updateView();
-      }
-    } else {
-      this.expectedSize = size;
-    }
-  }
-
   graphpaperBoundsChanged() {
     // if expectedBounds has not been initialized yet, then
     // there are no constraints on the bounds, so we
@@ -197,12 +180,11 @@ export default class Controller {
           // squish. But you just need to check graphpaper WIDTH and HEIGHT
           // in pixel coordinates
           mathBounds: this.expectedBounds ?? undefined,
-          width: this.expectedSize ? this.expectedSize.width : undefined,
-          height: this.expectedSize ? this.expectedSize.height : undefined,
+          width: 4096,
+          height: 2160,
         },
         (data) => {
           clearInterval(interval);
-          this.checkCaptureSize();
           // handle correct math bounds (which gets updated asynchronously) here;
           // probably is the same as the bounds used for the screenshot
           this.frames.push(data);
