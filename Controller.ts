@@ -365,6 +365,13 @@ export default class Controller {
     )[0];
   }
 
+  tempDownloadSingle(index: number) {
+    // remove the first frame and download it
+    const singleFrame = this.frames.shift();
+    if (singleFrame === undefined) return;
+    this.download(singleFrame, `frame_${index}`);
+  }
+
   async captureSlider() {
     const variable = this.sliderSettings.variable;
     const min = EvaluateSingleExpression(this.sliderSettings.minLatex);
@@ -388,11 +395,18 @@ export default class Controller {
       });
       try {
         await this.captureFrame(i === 0);
+        // i >= 1 because we still want a preview
+        if (i >= 1) {
+          // temporarily just delete the frame and download
+          this.tempDownloadSingle(i - 1);
+        }
       } catch {
         // should be paused due to mathBoundsMismatch or cancellation
         break;
       }
     }
+    // clean up the last frame
+    this.tempDownloadSingle(numSteps);
   }
 
   isWhileLatexValid() {
